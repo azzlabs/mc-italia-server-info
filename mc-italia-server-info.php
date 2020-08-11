@@ -20,7 +20,11 @@ function mcit_add_menu_entry() {
 	add_submenu_page(null, 'MC-Italia server info editor', 'MC-Italia server info editor', 'administrator', 'mcit-server-info-editor', 'mcit_editor_page');
 
 	// Registra i campi delle impostazioni di WP
-	add_action('admin_init', 'mcit_register_settings');
+    add_action('admin_init', 'mcit_register_settings');
+    
+    // Aggiunge il color picker come dipendenza
+    wp_enqueue_style('wp-color-picker');
+    wp_enqueue_script('wp-color-picker');
 }
 
 function mcit_register_settings() {
@@ -31,7 +35,7 @@ function mcit_register_settings() {
 function mcit_sanitize_path($string) {
     if ($_POST['mcit_change_server_info'] == 'true') return MCIT_DEFPATH;
 
-    return empty($string) ? MCIT_DEFPATH : $string;
+    return empty($string) ? MCIT_DEFPATH : trim($string, '/');
 }
 
 // Includo le dipendenze

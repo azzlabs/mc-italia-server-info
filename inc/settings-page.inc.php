@@ -9,7 +9,7 @@
             <table class="form-table">
                 <tr valign="top">
                     <th scope="row"><?php echo __('Modifica il percorso del file server-info.yml', 'mcit') ?></th>
-                    <td><input type="text" name="mcit_server_info_path" value="<?php echo esc_attr(get_option('mcit_server_info_path')); ?>" 
+                    <td><input type="text" name="mcit_server_info_path" value="/<?php echo esc_attr(get_option('mcit_server_info_path')); ?>" 
                         style="width:100%" <?php echo $change_path ? 'disabled' : ''; ?>/></td>
                 </tr>
                 

@@ -24,15 +24,14 @@
                 ['slug' => 'teamspeak', 'name' => __('TeamSpeak', 'mcit'), 'desc' => __('Indirizzo del server TeamSpeak', 'mcit'), 'type' => 'text', 'length' => '48'],
                 ['slug' => 'mumble', 'name' => __('Mumble', 'mcit'), 'desc' => __('Indirizzo del server Mumble', 'mcit'), 'type' => 'text', 'length' => '48'],
                 ['slug' => 'query_port', 'name' => __('Query port', 'mcit'), 'desc' => __('Indica se, per questioni tecniche, la server query va eseguita su una porta specifica', 'mcit'), 'type' => 'number', 'length' => ''],
-                ['slug' => 'theme_color', 'name' => __('Colore del tema', 'mcit'), 'desc' => __('Colore in esadecimale, indica il colore del tema della pagina in lista server', 'mcit'), 'type' => 'text', 'length' => '']
+                ['slug' => 'theme_color', 'name' => __('Colore del tema', 'mcit'), 'desc' => __('Colore in esadecimale, indica il colore del tema della pagina in lista server', 'mcit'), 'type' => 'color-field', 'length' => '']
             ];
         
         function mcit_parse_server_info_field($field) {
             switch ($field['type']) {
                 case 'repeater':
-                    return sprintf('<input type="text" name="%s" class="regular-text" maxlength="%s"/>
-                        <button class="button button-secondary">Aggiungi membro staff</button><br><br>
-                        <button class="button button-secondary">Aggiungi sezione staff</button>', $field['slug'], $field['length']);
+                    return sprintf('<div id="staff-section"></div>
+                        <button class="button button-secondary addSection">Aggiungi sezione</button>', $field['slug'], $field['length']);
                     break;
                 case 'text-from-to': return sprintf('%s <input type="text" name="%s-from" maxlength="%s"/> %s <input type="text" name="%s-to" maxlength="%s"/>', 
                     __('da', 'mcit'), $field['slug'], $field['length'], __('a', 'mcit'), $field['slug'], $field['length']); break;
@@ -43,6 +42,7 @@
                     }
                     return $sel . '</select>';
                     break;
+                case 'color-field': return sprintf('<input class="color_field" type="text" name="%d" style="margin-right: .5em"/>', $field['slug']); break;
                 default: return sprintf('<input type="%s" name="%s" class="regular-text" maxlength="%s"/>', $field['type'], $field['slug'], $field['length']);
             }
         }
@@ -72,8 +72,35 @@
     </div>
 
     <script>
-        jQuery('[name=mcit_change_server_info]').change(function() {
-            jQuery('[name=mcit_server_info_path]').attr('disabled', jQuery(this).is(':checked'));
+        jQuery(document).ready(function($){
+            $('.addSection').click(function(e) {
+                e.preventDefault();
+                $('#staff-section').append(`<div class="staff-entry" style="margin-bottom: .5em"><input type="text" name="%s" class="regular-text" maxlength="%s" placeholder="<?php echo __('Nome sezione', 'mcit') ?>" />
+                    <button class="button button-secondary addEntry">Aggiungi staff</button> <button class="button-link button-link-delete delSection"><?php echo __('Rimuovi sezione', 'mcit') ?></button><div class="section-entries"></div></div>`);
+            
+                $('.addEntry').unbind();
+                $('.addEntry').click(function(e) {
+                    e.preventDefault();
+                    $(this).parent().find('.section-entries').append(`<div class="staff-entry" style="margin-top: .5em; margin-left: 1.2em"><input type="text" name="%s" class="regular-text" maxlength="%s" placeholder="<?php echo __('Nome staff', 'mcit') ?>" />
+                        <button class="button-link button-link-delete delSection"><?php echo __('Rimuovi', 'mcit') ?></button></div>`);
+
+                    $('.delSection').unbind();
+                    $('.delSection').click(function(e) {
+                        e.preventDefault();
+                        $(this).parent().remove();
+                    });
+                });
+                
+                $('.delSection').unbind();
+                $('.delSection').click(function(e) {
+                    e.preventDefault();
+                    $(this).parent().remove();
+                });
+            });
+
+            $('.color_field').each(function(){
+                $(this).wpColorPicker();
+            });
         });
     </script>
 <?php } ?>
