@@ -78,12 +78,13 @@ class MCIT_editor {
                 return sprintf('<div class="parent-section"></div>
                     <button class="button button-secondary addSection" data-sectionslug="%s">Aggiungi sezione</button>', $field['slug'], $field['length'], $field['slug']);
                 break;
-            case 'text-from-to': return sprintf('%s <input type="text" name="%s-from" maxlength="%s"/> %s <input type="text" name="%s-to" maxlength="%s"/>', 
-                __('da', 'mcit'), $field['slug'], $field['length'], __('a', 'mcit'), $field['slug'], $field['length']); break;
+            case 'text-from-to': return sprintf('%s <input type="text" name="%s-from" maxlength="%s" value="%s"/> %s <input type="text" name="%s-to" maxlength="%s" value="%s"/>', 
+                __('da', 'mcit'), $field['slug'], $field['length'], $this->mcit_get_cur_value($field, '', true), __('a', 'mcit'), $field['slug'], $field['length'], $this->mcit_get_cur_value($field, '', false)); break;
             case 'select-multi': 
                 $sel = sprintf('<select name="%s[]" class="regular-text" multiple>', $field['slug']);
                 foreach ($field['values'] as $opt) {
-                    $sel.= sprintf('<option value="%s">%s</option>', $opt, ucfirst($opt));
+                    $sel.= sprintf('<option value="%s" %s>%s</option>', $opt, 
+                        in_array($opt, $this->mcit_get_cur_value($field)) ? 'selected' : '', ucfirst($opt));
                 }
                 return $sel . '</select>';
                 break;
@@ -93,40 +94,12 @@ class MCIT_editor {
         }
     }
 
-    public function mcit_get_cur_value($field, $default = '', $fromto = false) {
+    public function mcit_get_cur_value($field, $default = '', $fromto = null) {
         $current_dump = $this->current_dump;
 
         if (!empty($current_dump[$field['slug']]) || (!empty($current_dump[$field['slug'] . '-from']) && !empty($current_dump[$field['slug'] . '-to']))) {
-            switch ($field['type']) {
-                case 'text-from-to':
-                    $return_val = $field['slug'] . ":\n";
-                    $n_from = (int)substr($current_dump[$field['slug'] . '-from'], 2);
-                    $n_to = (int)substr($current_dump[$field['slug'] . '-to'], 2);
-                    for ($i = $n_from; $i <= $n_to; $i++) {
-                        $return_val .= sprintf("- \"%s\"\n", substr($current_dump[$field['slug'] . '-from'], 0, 2) . $i);
-                    }
-                    return ($fromto ? '':'');// $return_val;
-                case 'select-multi': 
-                    $return_val = $field['slug'] . ":\n";
-                    foreach ($current_dump[$field['slug']] as $entry_value) {
-                        $return_val .= sprintf("- \"%s\"\n", $entry_value);
-                    }
-                    return '';// $return_val;
-                case 'repeater':
-                    $return_val = $field['slug'] . ":\n";
-                    foreach ($current_dump[$field['slug']] as $key => $entry_label) {
-                        $return_val .= sprintf("- %s:\n", $entry_label);
-
-                        $values_slug = $field['slug'] . '_entry_' . $key;
-                        if (!empty($current_dump[$values_slug])){
-                            foreach ($current_dump[$values_slug] as $entry_value) {
-                                $return_val .= sprintf("  - \"%s\"\n", $entry_value);
-                            }
-                        }
-                    }
-                    return '';// $return_val;
-                default: return $current_dump[$field['slug']];
-            }
+            if ($fromto !== null) return $fromto ? $current_dump[$field['slug']][0] : $current_dump[$field['slug']][count($current_dump[$field['slug']]) - 1];
+            return $current_dump[$field['slug']];
         } else return $default;
     }
 }

@@ -48,16 +48,26 @@
     </div>
 
     <script>
+        var count = 0;
+
         jQuery(document).ready(function($) {
-            var count = 0;
 
             $('.addSection').click(function(e) {
-                const slug = $(this).data('sectionslug');
-                count++;
-
                 e.preventDefault();
-                $(this).parent().find('.parent-section').append(`<div class="${slug}-entry" style="margin-bottom: .5em">
-                        <input type="text" name="${slug}[${count}]" class="regular-text" maxlength="50" placeholder="<?php echo __('Nome sezione', 'mcit') ?>" />
+                
+                addSection($(this), $(this).data('sectionslug'));
+            });
+
+            $('.color_field').each(function(){
+                $(this).wpColorPicker();
+            });
+
+            function addSection(parent, slug, content = '') {
+                count++;
+                var section_child = parent.parent().find('.parent-section');
+
+                section_child.append(`<div class="${slug}-entry" style="margin-bottom: .5em">
+                        <input type="text" name="${slug}[${count}]" class="regular-text" maxlength="50" value="${content}" placeholder="<?php echo __('Nome sezione', 'mcit') ?>" />
                         <button class="button button-secondary addEntry" data-sectionslug="${slug}_entry_${count}">Aggiungi ${slug}</button> 
                         <button class="button-link button-link-delete delSection"><?php echo __('Rimuovi sezione', 'mcit') ?></button>
                         <div class="section-entries"></div>
@@ -65,31 +75,40 @@
             
                 $('.addEntry').unbind();
                 $('.addEntry').click(function(e) {
-                    const section_slug = $(this).data('sectionslug');
-
                     e.preventDefault();
-                    $(this).parent().find('.section-entries').append(`<div class="${slug}-entry" style="margin-top: .5em; margin-left: 1.2em">
-                            <input type="text" name="${section_slug}[]" class="regular-text" maxlength="50" placeholder="<?php echo __('Nome', 'mcit') ?> ${slug}" />
-                            <button class="button-link button-link-delete delSection"><?php echo __('Rimuovi', 'mcit') ?></button>
-                        </div>`);
 
-                    $('.delSection').unbind();
-                    $('.delSection').click(function(e) {
-                        e.preventDefault();
-                        $(this).parent().remove();
-                    });
+                    addEntry($(this), slug);
                 });
                 
+                delEntryListener();
+                return section_child.find('.addEntry');
+            }
+            
+            function addEntry(parent, slug, content = '') {
+                const section_slug = parent.data('sectionslug');
+
+                parent.parent().find('.section-entries').append(`<div class="${slug}-entry" style="margin-top: .5em; margin-left: 1.2em">
+                        <input type="text" name="${section_slug}[]" value="${content}" class="regular-text" maxlength="50" placeholder="<?php echo __('Nome', 'mcit') ?> ${slug}" />
+                        <button class="button-link button-link-delete delSection"><?php echo __('Rimuovi', 'mcit') ?></button>
+                    </div>`);
+
+                delEntryListener();
+            }
+
+            function delEntryListener() {
                 $('.delSection').unbind();
                 $('.delSection').click(function(e) {
                     e.preventDefault();
                     $(this).parent().remove();
                 });
-            });
+            }
 
-            $('.color_field').each(function(){
-                $(this).wpColorPicker();
-            });
+            var child = addSection($('.addSection'), 'test1');
+            addEntry(child, 'test11');
+            addEntry(child, 'test12');
+            var children = addSection($('.addSection'), 'test2');
+            addEntry(children, 'test21');
+            addEntry(children, 'test22');
         });
     </script>
 <?php } ?>
