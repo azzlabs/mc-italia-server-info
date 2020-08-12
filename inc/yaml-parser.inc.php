@@ -16,6 +16,9 @@ include 'vendor/yaml/Inline.php';
 include 'vendor/yaml/Unescaper.php';
 include 'vendor/yaml/Escaper.php';
 include 'vendor/yaml/Dumper.php';
+include 'vendor/yaml/Exception/ExceptionInterface.php';
+include 'vendor/yaml/Exception/RuntimeException.php';
+include 'vendor/yaml/Exception/ParseException.php';
 
 use Symfony\Component\Yaml\Exception\ParseException;
 

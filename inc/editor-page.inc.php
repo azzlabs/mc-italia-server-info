@@ -1,26 +1,17 @@
 <?php function mcit_editor_page() { ?>
 
-    <pre><?php 
+    <?php 
         $mcit_editor = new MCIT_editor();
-        $mcit_editor->mcit_load_yaml_file(ABSPATH . get_option('mcit_server_info_path'));
-
-        print_r($mcit_editor->current_dump);
         
         if (!empty($_POST)) {
             $yaml_file = '';
-
             foreach ($mcit_editor->server_info_fields as $field) {
                 $yaml_file .= $mcit_editor->mcit_post_yaml_parser($field);
             }
-
             file_put_contents(ABSPATH . get_option('mcit_server_info_path'), $yaml_file);
         }
 
-    ?></pre>
-
-    <?php
-        
-        
+        $mcit_editor->mcit_load_yaml_file(ABSPATH . get_option('mcit_server_info_path'));
     ?>
 
     <div class="wrap">
@@ -54,12 +45,17 @@
 
             $('.addSection').click(function(e) {
                 e.preventDefault();
-                
                 addSection($(this), $(this).data('sectionslug'));
             });
 
             $('.color_field').each(function(){
                 $(this).wpColorPicker();
+            });
+
+            $('[name*="-from"]').change(function() {
+                const to = $(this).parent().find('[name*="-to"]');
+                if (to.val() == '')
+                    to.val($(this).val());
             });
 
             function addSection(parent, slug, content = '') {
@@ -70,8 +66,8 @@
                         <input type="text" name="${slug}[${count}]" class="regular-text" maxlength="50" value="${content}" placeholder="<?php echo __('Nome sezione', 'mcit') ?>" />
                         <button class="button button-secondary addEntry" data-sectionslug="${slug}_entry_${count}">Aggiungi ${slug}</button> 
                         <button class="button-link button-link-delete delSection"><?php echo __('Rimuovi sezione', 'mcit') ?></button>
-                        <div class="section-entries"></div>
-                    </div>`);
+                        <div class="section-entries section-entries-${count}"></div>
+                    </div>`).data('section-id', count).data('sectionslug', slug + '_entry_' + count);
             
                 $('.addEntry').unbind();
                 $('.addEntry').click(function(e) {
@@ -81,13 +77,17 @@
                 });
                 
                 delEntryListener();
-                return section_child.find('.addEntry');
+                return section_child;
             }
             
             function addEntry(parent, slug, content = '') {
                 const section_slug = parent.data('sectionslug');
+                var findclass = '.section-entries';
+                if (parent.data('section-id')) findclass += '-' + parent.data('section-id');
 
-                parent.parent().find('.section-entries').append(`<div class="${slug}-entry" style="margin-top: .5em; margin-left: 1.2em">
+                console.log(findclass);
+
+                parent.parent().find(findclass).append(`<div class="${slug}-entry" style="margin-top: .5em; margin-left: 1.2em">
                         <input type="text" name="${section_slug}[]" value="${content}" class="regular-text" maxlength="50" placeholder="<?php echo __('Nome', 'mcit') ?> ${slug}" />
                         <button class="button-link button-link-delete delSection"><?php echo __('Rimuovi', 'mcit') ?></button>
                     </div>`);
@@ -103,12 +103,16 @@
                 });
             }
 
-            var child = addSection($('.addSection'), 'test1');
-            addEntry(child, 'test11');
-            addEntry(child, 'test12');
-            var children = addSection($('.addSection'), 'test2');
-            addEntry(children, 'test21');
-            addEntry(children, 'test22');
+            if (Array.isArray(staff_repeater_data)) {
+                staff_repeater_data.forEach(arr => {
+                    for (var key in arr) {
+                        var child = addSection($('.addSection'), 'staff', key);
+                        arr[key].forEach(val => {
+                            addEntry(child, 'staff', val);
+                        });
+                    }
+                });
+            }
         });
     </script>
 <?php } ?>

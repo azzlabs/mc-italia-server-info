@@ -15,7 +15,7 @@ class MCIT_editor {
             ['slug' => 'url', 'name' => __('URL in Minecraft-Italia', 'mcit'), 'desc' => __('URL della pagina personalizzato', 'mcit'), 'type' => 'text', 'length' => '24'],
             ['slug' => 'hidden', 'name' => __('Nascosto', 'mcit'), 'desc' => __('Indica se il server deve essere nascosto temporaneamente dalla lista', 'mcit'), 'type' => 'checkbox', 'length' => ''],
             ['slug' => 'only-premium', 'name' => __('Solo premium', 'mcit'), 'desc' => __('Specifica se l\'accesso al server è riservato ai soli utenti possessori di una copia originale di Minecraft', 'mcit'), 'type' => 'checkbox', 'length' => ''],
-            ['slug' => 'versions', 'name' => __('Versioni supportate', 'mcit'), 'desc' => __('Elenco di versioni supportate dal server di Minecraft.<br>Usare solo versioni principali (es. 1.15). Se ha solo una versione, lasciare vuoto il campo "a"', 'mcit'), 'type' => 'text-from-to', 'length' => '4'],
+            ['slug' => 'versions', 'name' => __('Versioni supportate', 'mcit'), 'desc' => __('Elenco di versioni supportate dal server di Minecraft.<br>Usare solo versioni principali (es. 1.15). Se ha solo una versione, ricopiare la stessa nel campo "a"', 'mcit'), 'type' => 'text-from-to', 'length' => '4'],
             ['slug' => 'categories', 'name' => __('Categorie', 'mcit'), 'desc' => __('Elenco di categorie di cui il server fa parte.<br>Ne vanno elencate un massimo di 5 e devono essere già attive al momento della modifica del file .yml<br>Suggerimento: usa ctrl + click per selezionarne più di una', 'mcit'), 'type' => 'select-multi', 'values' => $this->categories],
             ['slug' => 'staff', 'name' => __('Staff', 'mcit'), 'desc' => __('Elenco di ruoli, contenenti a loro volta un elenco di Minecraft UUID relativi agli staffer del server.<br>Se non si vuole la scheda "Staff" basta lasciare il campo vuoto', 'mcit'), 'type' => 'repeater', 'length' => '36'],
             ['slug' => 'www', 'name' => __('Sito web', 'mcit'), 'desc' => __('Indirizzo completo del sito web. Va preceduto da http:// o https://', 'mcit'), 'type' => 'text', 'length' => '48'],
@@ -32,7 +32,12 @@ class MCIT_editor {
     }
 
     public function mcit_load_yaml_file($filename) {
-        $this->current_dump = Symfony\Component\Yaml\Yaml::parseFile($filename);
+        try {
+            $this->current_dump = Symfony\Component\Yaml\Yaml::parseFile($filename);
+        } catch (Exception $e) {
+            printf ('<div class="error"><p><strong>%s</strong><br>%s</p></div>', __('Errore nella lettura del file server-info', 'mcit'), $e->getMessage());
+            $this->current_dump = [];
+        }
     }
 
     public function mcit_post_yaml_parser($field) {
@@ -76,7 +81,9 @@ class MCIT_editor {
         switch ($field['type']) {
             case 'repeater':
                 return sprintf('<div class="parent-section"></div>
-                    <button class="button button-secondary addSection" data-sectionslug="%s">Aggiungi sezione</button>', $field['slug'], $field['length'], $field['slug']);
+                    <button class="button button-secondary addSection" data-sectionslug="%s">Aggiungi sezione</button>
+                    <script>var %s_repeater_data = %s;</script>', 
+                    $field['slug'], $field['slug'], json_encode($this->mcit_get_cur_value($field), JSON_PRETTY_PRINT));
                 break;
             case 'text-from-to': return sprintf('%s <input type="text" name="%s-from" maxlength="%s" value="%s"/> %s <input type="text" name="%s-to" maxlength="%s" value="%s"/>', 
                 __('da', 'mcit'), $field['slug'], $field['length'], $this->mcit_get_cur_value($field, '', true), __('a', 'mcit'), $field['slug'], $field['length'], $this->mcit_get_cur_value($field, '', false)); break;
@@ -84,7 +91,7 @@ class MCIT_editor {
                 $sel = sprintf('<select name="%s[]" class="regular-text" multiple>', $field['slug']);
                 foreach ($field['values'] as $opt) {
                     $sel.= sprintf('<option value="%s" %s>%s</option>', $opt, 
-                        in_array($opt, $this->mcit_get_cur_value($field)) ? 'selected' : '', ucfirst($opt));
+                        in_array($opt, $this->mcit_get_cur_value($field, [])) ? 'selected' : '', ucfirst($opt));
                 }
                 return $sel . '</select>';
                 break;
