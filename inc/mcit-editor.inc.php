@@ -32,8 +32,7 @@ class MCIT_editor {
     }
 
     public function mcit_load_yaml_file($filename) {
-        $yaml = new Dallgoot\Yaml\Loader();
-        $this->current_dump = $yaml->load($filename)->parse();
+        $this->current_dump = Symfony\Component\Yaml\Yaml::parseFile($filename);
     }
 
     public function mcit_post_yaml_parser($field) {

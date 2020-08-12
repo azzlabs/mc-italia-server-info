@@ -1,13 +1,10 @@
 <?php function mcit_editor_page() { ?>
 
-    <?php 
+    <pre><?php 
         $mcit_editor = new MCIT_editor();
         $mcit_editor->mcit_load_yaml_file(ABSPATH . get_option('mcit_server_info_path'));
-    ?>
 
-    <pre><?php 
-        
-        print_r($mcit_editor->current_dump->categories);
+        print_r($mcit_editor->current_dump);
         
         if (!empty($_POST)) {
             $yaml_file = '';
