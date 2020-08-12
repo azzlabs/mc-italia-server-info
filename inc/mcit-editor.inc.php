@@ -45,6 +45,19 @@ class MCIT_editor {
         }
     }
 
+    public function mcit_post_listener() {
+        if (!empty($_POST)) {
+            $yaml_file = "---\n";
+            foreach ($this->server_info_fields as $field) {
+                $yaml_file .= $this->mcit_post_yaml_parser($field);
+            }
+            $yaml_file .= "---\n";
+            $yaml_file .= stripcslashes($_POST['page_content']);
+            $yaml_file .= "\n---\n";
+            file_put_contents(ABSPATH . get_option('mcit_server_info_path'), $yaml_file);
+        }
+    }
+
     public function mcit_post_yaml_parser($field) {
         if (!empty($_POST[$field['slug']]) || (!empty($_POST[$field['slug'] . '-from']) && !empty($_POST[$field['slug'] . '-to']))) {
             switch ($field['type']) {
