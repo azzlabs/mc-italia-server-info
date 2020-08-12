@@ -4,10 +4,13 @@
         $mcit_editor = new MCIT_editor();
         
         if (!empty($_POST)) {
-            $yaml_file = '';
+            $yaml_file = "---\n";
             foreach ($mcit_editor->server_info_fields as $field) {
                 $yaml_file .= $mcit_editor->mcit_post_yaml_parser($field);
             }
+            $yaml_file .= "---\n";
+            $yaml_file .= stripcslashes($_POST['page_content']);
+            $yaml_file .= "\n---\n";
             file_put_contents(ABSPATH . get_option('mcit_server_info_path'), $yaml_file);
         }
 
@@ -32,6 +35,13 @@
                 </tr>
                 
                 <?php } ?>
+
+                <tr valign="top">
+                    <th scope="row"><?php echo __('Contenuto della pagina', 'mcit') ?></th>
+                    <td style="padding-bottom: 0">
+                        <textarea class="mdeditor" name="page_content"><?php echo $mcit_editor->page_content; ?></textarea>
+                    </td>
+                </tr>
             </table>
             
             <?php submit_button(); ?>
@@ -42,6 +52,8 @@
         var count = 0;
 
         jQuery(document).ready(function($) {
+
+            var simplemde = new SimpleMDE({ element: $('.mdeditor')[0], spellChecker: false, status: false });
 
             $('.addSection').click(function(e) {
                 e.preventDefault();

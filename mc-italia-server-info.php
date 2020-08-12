@@ -25,6 +25,15 @@ function mcit_add_menu_entry() {
     // Aggiunge il color picker come dipendenza
     wp_enqueue_style('wp-color-picker');
     wp_enqueue_script('wp-color-picker');
+
+    // Aggiunge i custom script e stili
+    add_action('admin_enqueue_scripts', 'mcit_widget_enqueue_scripts');
+}
+
+function mcit_widget_enqueue_scripts() {   
+    wp_enqueue_style('simple_mde_css', plugin_dir_url(__FILE__) . 'assets/simple-mde/simplemde.min.css');
+    wp_enqueue_style('mcit_css', plugin_dir_url(__FILE__) . 'assets/mcit-style.css');
+    wp_enqueue_script('simple_mde_script', plugin_dir_url(__FILE__) . 'assets/simple-mde/simplemde.min.js');
 }
 
 function mcit_register_settings() {

@@ -3,6 +3,7 @@ class MCIT_editor {
     public $categories;
     public $server_info_fields;
     public $current_dump;
+    public $page_content;
 
     public function __construct() {
         $this->categories = [
@@ -33,7 +34,11 @@ class MCIT_editor {
 
     public function mcit_load_yaml_file($filename) {
         try {
-            $this->current_dump = Symfony\Component\Yaml\Yaml::parseFile($filename);
+            $content = file_get_contents($filename);
+            $content = explode("\n---\n", $content);
+
+            $this->current_dump = Symfony\Component\Yaml\Yaml::parse($content[0]);
+            $this->page_content = $content[1];
         } catch (Exception $e) {
             printf ('<div class="error"><p><strong>%s</strong><br>%s</p></div>', __('Errore nella lettura del file server-info', 'mcit'), $e->getMessage());
             $this->current_dump = [];
