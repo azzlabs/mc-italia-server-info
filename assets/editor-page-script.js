@@ -2,7 +2,16 @@ var count = 0;
 
 jQuery(document).ready(function($) {
 
-    new SimpleMDE({ element: $('.mdeditor')[0], spellChecker: false, status: false });
+    new SimpleMDE({ 
+        element: $('.mdeditor')[0], 
+        spellChecker: false, 
+        status: false, 
+        toolbar: mcit_smde_toolbar,
+        autoDownloadFontAwesome: false,
+        previewRender: function(plainText) {
+            return mcit_post_render(this.parent.markdown(mcit_pre_render(plainText)));
+        }
+    });
 
     $('.addSection').click(function(e) {
         e.preventDefault();
@@ -70,6 +79,21 @@ jQuery(document).ready(function($) {
             e.preventDefault();
             $(this).parent().remove();
         });
+    }
+
+    function mcit_pre_render(text) {
+        // Parsing link di youtube
+        text = text.replace(/(?:@\[youtube\]\(https:\/\/.*\/watch\?v=(.*?)\))/g, '<iframe width="100%" height="450" src="https://www.youtube.com/embed/$1" frameborder="0"></iframe>');
+        text = text.replace(/(?:@\[youtube\]\(https:\/\/youtu.be\/(.*?)\))/g, '<iframe width="100%" height="450" src="https://www.youtube.com/embed/$1" frameborder="0"></iframe>');
+        return text;
+    }
+
+    function mcit_post_render(text) {
+        // Sostituisce fino a tre classi
+        text = text.replace(/(?:(.*?){\:\.(.*?) \.(.*?) \.(.*?)})/g, '<div class="$2 $3 $4">$1</div>');
+        text = text.replace(/(?:(.*?){\:\.(.*?) \.(.*?)})/g, '<div class="$2 $3">$1</div>');
+        text = text.replace(/(?:(.*?){\:\.(.*?)})/g, '<div class="$2">$1</div>');
+        return text;
     }
 
     if (Array.isArray(staff_repeater_data)) {

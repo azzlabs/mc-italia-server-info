@@ -1,3 +1,9 @@
 .editor-toolbar.fullscreen, .CodeMirror-fullscreen, .editor-preview-side {
-    z-index: 999999;
+    z-index: 99999;
+}
+.editor-preview-side img, .editor-preview img {
+    max-width: 100%;
+}
+.editor-toolbar i.separator {
+    margin-top: 8px;
 }

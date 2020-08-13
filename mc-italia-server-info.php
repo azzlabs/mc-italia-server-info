@@ -23,26 +23,37 @@ function mcit_add_menu_entry() {
 
 	// Registra i campi delle impostazioni di WP
     add_action('admin_init', 'mcit_register_settings');
-    
+
+    // Aggiunge i custom script e stili
+    add_action('admin_enqueue_scripts', 'mcit_widget_enqueue_scripts');
+
+    // Gestione errori
+    set_error_handler(function ($severity, $message, $file, $line) {
+        throw new ErrorException($message, $severity, $severity, $file, $line);
+    });
+}
+
+function mcit_widget_enqueue_scripts($hook) {
+    if ($hook != 'tools_page_mcit-server-info-editor') return;
+
+    add_action('admin_head', 'mcit_custom_admin_js');
+    wp_enqueue_style('simple_mde_css', plugin_dir_url(__FILE__) . 'assets/simple-mde/simplemde.min.css');
+    wp_enqueue_style('mcit_css', plugin_dir_url(__FILE__) . 'assets/mcit-style.css');
+    wp_enqueue_script('simple_mde_script', plugin_dir_url(__FILE__) . 'assets/simple-mde/simplemde.min.js');
+    wp_enqueue_script('mcit_smde_toolbar', plugin_dir_url(__FILE__) . 'assets/smde-toolbar.js');
+    wp_enqueue_script('mcit_edit_script', plugin_dir_url(__FILE__) . 'assets/editor-page-script.js');
+
     // Aggiunge il color picker come dipendenza
     wp_enqueue_style('wp-color-picker');
     wp_enqueue_script('wp-color-picker');
 
-    // Aggiunge i custom script e stili
-    add_action('admin_head', 'mcit_custom_admin_js');
-    add_action('admin_enqueue_scripts', 'mcit_widget_enqueue_scripts');
-}
-
-function mcit_widget_enqueue_scripts() {
-    wp_enqueue_style('simple_mde_css', plugin_dir_url(__FILE__) . 'assets/simple-mde/simplemde.min.css');
-    wp_enqueue_style('mcit_css', plugin_dir_url(__FILE__) . 'assets/mcit-style.css');
-    wp_enqueue_script('simple_mde_script', plugin_dir_url(__FILE__) . 'assets/simple-mde/simplemde.min.js');
-    wp_enqueue_script('mcit_edit_script', plugin_dir_url(__FILE__) . 'assets/editor-page-script.js');
+    // Aggiunge il media dialog
+    wp_enqueue_media();
 }
 
 function mcit_custom_admin_js() { ?>
     <script>
-        var mcit_locale = <?php echo json_encode(['label_name' => __('Nome', 'mcit'), 'label_remove' => __('Rimuovi', 'mcit'), 
+        const mcit_locale = <?php echo json_encode(['label_name' => __('Nome', 'mcit'), 'label_remove' => __('Rimuovi', 'mcit'), 
                         'section_name' => __('Nome sezione', 'mcit'), 'section_remove' => __('Rimuovi sezione', 'mcit')]); ?>;
     </script>
 <?php }

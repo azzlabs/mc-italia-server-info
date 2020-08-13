@@ -32,33 +32,70 @@ class MCIT_editor {
         ];
     }
 
+    static function mcit_target_folder() {
+        $server_info_dirname = dirname(ABSPATH . get_option('mcit_server_info_path'));
+        return (file_exists($server_info_dirname) ? $server_info_dirname : false);
+    }
+    
+    static function mcit_target_file() {
+        $server_info_file = ABSPATH . get_option('mcit_server_info_path');
+        return (file_exists($server_info_file) ? $server_info_file : false);
+    }
+
+    static function mcit_target_folder_writable() {
+        $server_info_dirname = dirname(ABSPATH . get_option('mcit_server_info_path'));
+        return (is_writable($server_info_dirname) ? $server_info_dirname : false);
+    }
+    
+    static function mcit_target_file_writable() {
+        $server_info_file = ABSPATH . get_option('mcit_server_info_path');
+        return (is_writable($server_info_file) ? $server_info_file : false);
+    }
+
     public function mcit_load_yaml_file($filename) {
         try {
             $content = file_get_contents($filename);
+            if ($content === false) {
+                $this->mcit_print_error(__('Errore nell\'apertura del file server-info', 'mcit'));
+                return;
+            }
+
             $content = explode("\n---\n", $content);
 
             $this->current_dump = Symfony\Component\Yaml\Yaml::parse($content[0]);
             $this->page_content = $content[1];
         } catch (Exception $e) {
-            printf ('<div class="error"><p><strong>%s</strong><br>%s</p></div>', __('Errore nella lettura del file server-info', 'mcit'), $e->getMessage());
+            $this->mcit_print_error(__('Errore nella lettura del file server-info', 'mcit'), $e->getMessage());
             $this->current_dump = [];
         }
+    }
+
+    static function mcit_print_error($error, $desc = '', $class = 'error') {
+        if (!empty($desc)) $desc = '<br>' . $desc;
+        printf('<div class="%s"><p><strong>%s</strong>%s</p></div>', $class, $error, $desc);
     }
 
     public function mcit_post_listener() {
         if (!empty($_POST)) {
             $yaml_file = "---\n";
             foreach ($this->server_info_fields as $field) {
-                $yaml_file .= $this->mcit_post_yaml_parser($field);
+                $yaml_file .= $this->mcit_yaml_line_dumper($field);
             }
             $yaml_file .= "---\n";
             $yaml_file .= stripcslashes($_POST['page_content']);
             $yaml_file .= "\n---\n";
-            file_put_contents(ABSPATH . get_option('mcit_server_info_path'), $yaml_file);
+            try {
+                if (file_put_contents(ABSPATH . get_option('mcit_server_info_path'), $yaml_file))
+                    $this->mcit_print_error(__('File server-info salvato con successo', 'mcit'), '', 'updated');
+                else
+                    $this->mcit_print_error(__('Errore nel salvataggio del file server-info', 'mcit'));
+            } catch (Exception $e) {
+                $this->mcit_print_error(__('Errore nel salvataggio del file server-info', 'mcit'), $e->getMessage());
+            }
         }
     }
 
-    public function mcit_post_yaml_parser($field) {
+    public function mcit_yaml_line_dumper($field) {
         if (!empty($_POST[$field['slug']]) || (!empty($_POST[$field['slug'] . '-from']) && !empty($_POST[$field['slug'] . '-to']))) {
             switch ($field['type']) {
                 case 'text-from-to':
