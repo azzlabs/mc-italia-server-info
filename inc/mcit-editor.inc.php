@@ -15,7 +15,7 @@ class MCIT_editor {
             ['slug' => 'name', 'name' => __('Nome del server', 'mcit'), 'desc' => __('Non deve contenere decorazioni o testo che non sia parte integrante del nome del server', 'mcit'), 'type' => 'text', 'length' => '24'],
             ['slug' => 'url', 'name' => __('URL in Minecraft-Italia', 'mcit'), 'desc' => __('URL della pagina personalizzato', 'mcit'), 'type' => 'text', 'length' => '24'],
             ['slug' => 'hidden', 'name' => __('Nascosto', 'mcit'), 'desc' => __('Indica se il server deve essere nascosto temporaneamente dalla lista', 'mcit'), 'type' => 'checkbox', 'length' => ''],
-            ['slug' => 'only-premium', 'name' => __('Solo premium', 'mcit'), 'desc' => __('Specifica se l\'accesso al server è riservato ai soli utenti possessori di una copia originale di Minecraft', 'mcit'), 'type' => 'checkbox', 'length' => ''],
+            ['slug' => 'only-premium', 'name' => __('Solo premium', 'mcit'), 'desc' => __('Specifica se l\'accesso al server &egrave; riservato ai soli utenti possessori di una copia originale di Minecraft', 'mcit'), 'type' => 'checkbox', 'length' => ''],
             ['slug' => 'versions', 'name' => __('Versioni supportate', 'mcit'), 'desc' => __('Elenco di versioni supportate dal server di Minecraft.<br>Usare solo versioni principali (es. 1.15). Se ha solo una versione, ricopiare la stessa nel campo "a"', 'mcit'), 'type' => 'text-from-to', 'length' => '4'],
             ['slug' => 'categories', 'name' => __('Categorie', 'mcit'), 'desc' => __('Elenco di categorie di cui il server fa parte.<br>Ne vanno elencate un massimo di 5 e devono essere già attive al momento della modifica del file .yml<br>Suggerimento: usa ctrl + click per selezionarne più di una', 'mcit'), 'type' => 'select-multi', 'values' => $this->categories],
             ['slug' => 'staff', 'name' => __('Staff', 'mcit'), 'desc' => __('Elenco di ruoli, contenenti a loro volta un elenco di Minecraft UUID relativi agli staffer del server.<br>Se non si vuole la scheda "Staff" basta lasciare il campo vuoto', 'mcit'), 'type' => 'repeater', 'length' => '36'],
@@ -32,34 +32,59 @@ class MCIT_editor {
         ];
     }
 
-    static function mcit_target_folder() {
+    static public function mcit_target_folder() {
         $server_info_dirname = dirname(ABSPATH . get_option('mcit_server_info_path'));
         return (file_exists($server_info_dirname) ? $server_info_dirname : false);
     }
     
-    static function mcit_target_file() {
+    static public function mcit_target_file() {
         $server_info_file = ABSPATH . get_option('mcit_server_info_path');
         return (file_exists($server_info_file) ? $server_info_file : false);
     }
 
-    static function mcit_target_folder_writable() {
+    static public function mcit_target_folder_writable() {
         $server_info_dirname = dirname(ABSPATH . get_option('mcit_server_info_path'));
         return (is_writable($server_info_dirname) ? $server_info_dirname : false);
     }
     
-    static function mcit_target_file_writable() {
+    static public function mcit_target_file_writable() {
         $server_info_file = ABSPATH . get_option('mcit_server_info_path');
         return (is_writable($server_info_file) ? $server_info_file : false);
     }
 
-    public function mcit_load_yaml_file($filename) {
-        try {
-            $content = file_get_contents($filename);
-            if ($content === false) {
-                $this->mcit_print_error(__('Errore nell\'apertura del file server-info', 'mcit'));
-                return;
-            }
+    static public function mcit_writable_test($top_msg = false) {
+        if (!$top_msg) 
+            $top_msg = __('Errore', 'mcit');
 
+        if (!self::mcit_target_folder()) {
+            self::mcit_print_error($top_msg, __('La cartella di destinazione non esiste.<br>&Egrave; necessario creare la cartella e assegnare i permessi di scrittura prima di procedere'));
+            return false;
+        }
+        if (!self::mcit_target_folder_writable()) {
+            self::mcit_print_error($top_msg, __('La cartella di destinazione non &egrave; scrivibile da WordPress.<br>&Egrave; necessario creare la cartella e assegnare i permessi di scrittura prima di procedere'));
+            return false;
+        }
+        if (self::mcit_target_file() && !self::mcit_target_file_writable()) {
+            self::mcit_print_error($top_msg, __('Il file di destinazione &egrave; già presente ma non &egrave; scrivibile da WordPress.<br>&Egrave; necessario assegnare al file i permessi di scrittura prima di procedere'));
+            return false;
+        }
+
+        return true;
+    }
+
+    static public function mcit_read_yaml_file() {
+        $content = file_get_contents(ABSPATH . get_option('mcit_server_info_path'));
+        if ($content === false) {
+            self::mcit_print_error(__('Errore nell\'apertura del file server-info', 'mcit'));
+            return false;
+        }
+        return $content;
+    }
+
+    public function mcit_load_yaml($content = false) {
+        try {
+            if (empty($content)) $content = $this->mcit_read_yaml_file();
+                
             $content = explode("\n---\n", $content);
 
             $this->current_dump = Symfony\Component\Yaml\Yaml::parse($content[0]);
@@ -70,9 +95,10 @@ class MCIT_editor {
         }
     }
 
-    static function mcit_print_error($error, $desc = '', $class = 'error') {
+    static function mcit_print_error($error, $desc = '', $class = 'error', $dismissable = false) {
         if (!empty($desc)) $desc = '<br>' . $desc;
-        printf('<div class="%s"><p><strong>%s</strong>%s</p></div>', $class, $error, $desc);
+        printf('<div id="mcit_message" class="%s"><p><strong>%s</strong>%s</p>%s</div>', $class . ($dismissable ? ' notice is-dismissable' : ''), $error, $desc, 
+            ($dismissable ? '<button type="button" class="notice-dismiss"><span class="screen-reader-text">Ignora questa notifica.</span></button>' : ''));
     }
 
     public function mcit_post_listener() {
@@ -84,13 +110,24 @@ class MCIT_editor {
             $yaml_file .= "---\n";
             $yaml_file .= stripcslashes($_POST['page_content']);
             $yaml_file .= "\n---\n";
-            try {
-                if (file_put_contents(ABSPATH . get_option('mcit_server_info_path'), $yaml_file))
-                    $this->mcit_print_error(__('File server-info salvato con successo', 'mcit'), '', 'updated');
-                else
-                    $this->mcit_print_error(__('Errore nel salvataggio del file server-info', 'mcit'));
-            } catch (Exception $e) {
-                $this->mcit_print_error(__('Errore nel salvataggio del file server-info', 'mcit'), $e->getMessage());
+
+            if ((isset($_POST['mcit_save_snapshot']) && $_POST['mcit_save_snapshot'] == 'true') || isset($_POST['mcit_preview'])) {
+                $snap_name = sprintf('Snapshot %s %s (%s %s)', __('del', 'mcit'), date('d/m/Y, H:i'), $_POST['name'], $_POST['versions-to']);
+                $snap_id = wp_insert_post(['post_title' => $snap_name, 'post_content' => $yaml_file, 'post_type' => 'mcit_file_history']);
+
+                if (isset($_POST['mcit_preview'])) {
+                    wp_redirect(esc_url_raw(add_query_arg(['page' => 'mcit-server-info-preview', 'snapshot_id' => $snap_id])));
+                    die();
+                }
+            }
+
+            if (isset($_POST['mcit_submit']) && $this->mcit_writable_test()) {
+                try {
+                    if (file_put_contents(ABSPATH . get_option('mcit_server_info_path'), $yaml_file))
+                        $this->mcit_print_error(__('File server-info salvato con successo', 'mcit'), '', 'updated', true);
+                } catch (Exception $e) {
+                    $this->mcit_print_error(__('Errore nel salvataggio del file server-info', 'mcit'), $e->getMessage());
+                }
             }
         }
     }

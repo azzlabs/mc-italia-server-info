@@ -10,3 +10,35 @@
 .editor-toolbar i.separator {
     margin-top: 8px;
 }
+.wrap h1.wp-heading-inline {
+    padding-bottom: 15px;
+}
+.tablenav.top {
+    display: none;
+}
+.closeinlineedit {
+    margin-left: 10px !important;
+}
+.mcit-status {
+    font-weight: bold;
+}
+.mcit-status.red {
+    color: #d30000;
+}
+.mcit-status.green {
+    color: #00ac00;
+}
+.mcit-status.yellow {
+    color: #ffc400;
+}
+.mcit-code-editor-container .CodeMirror, 
+.mcit-code-editor-container textarea  {
+    width: 100%;
+    min-height: 60vh;
+    height: calc(100vh - 295px);
+    border: 1px solid #ddd;
+    box-sizing: border-box;
+}
+#mcit_message {
+    position: relative;
+}

@@ -21,6 +21,7 @@ function mcit_add_menu_entry() {
 	add_submenu_page('tools.php', 'MC-Italia server info', 'MC-Italia server info', 'administrator', 'mcit-server-info-generator', 'mcit_settings_page');
 	add_submenu_page(null, 'MC-Italia server info editor', 'MC-Italia server info editor', 'administrator', 'mcit-server-info-editor', 'mcit_editor_page');
 	add_submenu_page(null, 'MC-Italia server info editor', 'MC-Italia server info history', 'administrator', 'mcit-server-info-history', 'mcit_history_page');
+	add_submenu_page(null, 'MC-Italia server info editor', 'MC-Italia server info preview', 'administrator', 'mcit-server-info-preview', 'mcit_preview_page');
 
 	// Registra i campi delle impostazioni di WP
     add_action('admin_init', 'mcit_register_settings');
@@ -38,26 +39,48 @@ function mcit_add_menu_entry() {
 }
 
 function mcit_widget_enqueue_scripts($hook) {
-    if (!in_array($hook, ['tools_page_mcit-server-info-editor', 'tools_page_mcit-server-info-history'])) return;
+    if (!in_array($hook, [
+        'tools_page_mcit-server-info-generator', 
+        'tools_page_mcit-server-info-editor', 
+        'tools_page_mcit-server-info-history',
+        'tools_page_mcit-server-info-preview'
+    ])) return;
 
     add_action('admin_head', 'mcit_custom_admin_js');
-    wp_enqueue_style('simple_mde_css', plugin_dir_url(__FILE__) . 'assets/simple-mde/simplemde.min.css');
-    wp_enqueue_style('mcit_css', plugin_dir_url(__FILE__) . 'assets/mcit-style.css');
-    wp_enqueue_script('simple_mde_script', plugin_dir_url(__FILE__) . 'assets/simple-mde/simplemde.min.js');
-    wp_enqueue_script('mcit_smde_toolbar', plugin_dir_url(__FILE__) . 'assets/smde-toolbar.js');
+
+    if ($hook == 'tools_page_mcit-server-info-editor') {
+        // Markdown editor
+        wp_enqueue_style('simple_mde_css', plugin_dir_url(__FILE__) . 'assets/simple-mde/simplemde.min.css');
+        wp_enqueue_script('simple_mde_script', plugin_dir_url(__FILE__) . 'assets/simple-mde/simplemde.min.js');
+        wp_enqueue_script('mcit_smde_toolbar', plugin_dir_url(__FILE__) . 'assets/smde-toolbar.js');
+
+        // Aggiunge il color picker come dipendenza
+        wp_enqueue_style('wp-color-picker');
+        wp_enqueue_script('wp-color-picker');
+    
+        // Aggiunge il media dialog
+        wp_enqueue_media();
+
+        // Registra la classe per la pagina editor
+        global $mcit_editor;
+        $mcit_editor = new MCIT_editor();
+        $mcit_editor->mcit_post_listener();
+    }
+
+    if ($hook == 'tools_page_mcit-server-info-preview') {
+        // Code editor
+        wp_enqueue_code_editor(['type' => 'text/html']);
+    }
+
     wp_enqueue_script('mcit_edit_script', plugin_dir_url(__FILE__) . 'assets/editor-page-script.js');
+    wp_enqueue_style('mcit_css', plugin_dir_url(__FILE__) . 'assets/mcit-style.css');
 
-    // Aggiunge il color picker come dipendenza
-    wp_enqueue_style('wp-color-picker');
-    wp_enqueue_script('wp-color-picker');
-
-    // Aggiunge il media dialog
-    wp_enqueue_media();
-
-    // Registra la classe per la pagina history
-    global $mcit_history_list_table;
-    $mcit_history_list_table = new MCIT_History_List_Table();
-    $mcit_history_list_table->prepare_items();
+    if ($hook == 'tools_page_mcit-server-info-history') {
+        // Registra la classe per la pagina history
+        global $mcit_history_list_table;
+        $mcit_history_list_table = new MCIT_History_List_Table();
+        $mcit_history_list_table->prepare_items();
+    }
 }
 
 function mcit_custom_admin_js() { ?>
@@ -77,13 +100,16 @@ function mcit_get_uuid() {
 
 function mcit_register_settings() {
 	register_setting('mcit_settings_group', 'mcit_server_info_path', ['type' => 'string', 'default' => MCIT_DEFPATH, 'sanitize_callback' => 'mcit_sanitize_path']);
-	register_setting('mcit_settings_group', 'mcit_change_server_info', ['type' => 'boolean', 'default' => true]);
+	register_setting('mcit_settings_group', 'mcit_change_server_info', ['type' => 'boolean', 'default' => true, 'sanitize_callback' => 'mcit_sanitize_cb']);
 }
 
 function mcit_sanitize_path($string) {
     if ($_POST['mcit_change_server_info'] == 'true') return MCIT_DEFPATH;
 
     return empty($string) ? MCIT_DEFPATH : trim($string, '/');
+}
+function mcit_sanitize_cb($string) {
+    return $string == 'true';
 }
 
 // Includo le dipendenze

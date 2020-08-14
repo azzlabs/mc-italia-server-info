@@ -108,4 +108,8 @@ jQuery(document).ready(function($) {
             }
         });
     }
+
+    $('.notice-dismiss').click(function() {
+        $('#mcit_message').hide();
+    });
 });

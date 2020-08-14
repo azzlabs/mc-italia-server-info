@@ -1,9 +1,20 @@
 <?php function mcit_editor_page() { ?>
 
     <?php 
-        $mcit_editor = new MCIT_editor();
-        $mcit_editor->mcit_post_listener();
-        $mcit_editor->mcit_load_yaml_file(ABSPATH . get_option('mcit_server_info_path'));
+        global $mcit_editor;
+        $yaml_content = false;
+
+        if (isset($_GET['snapshot_id'])) {
+            $snapshot = get_post($_GET['snapshot_id']);
+
+            if ($snapshot) {
+                $yaml_content = $snapshot->post_content;
+
+                MCIT_editor::mcit_print_error(sprintf('"%s" %s', $snapshot->post_title, __('caricato correttamente')), '', 'updated');
+            }
+        }
+
+        $mcit_editor->mcit_load_yaml($yaml_content);
     ?>
 
     <div class="wrap">
@@ -27,13 +38,25 @@
 
                 <tr valign="top">
                     <th scope="row"><?php echo __('Contenuto della pagina', 'mcit') ?></th>
-                    <td style="padding-bottom: 0">
+                    <td>
                         <textarea class="mdeditor" name="page_content"><?php echo $mcit_editor->page_content; ?></textarea>
+                    </td>
+                </tr>
+                
+                <tr valign="top">
+                    <th scope="row"><?php echo __('Salva snapshot', 'mcit') ?></th>
+                    <td>
+                        <input type="hidden" name="mcit_save_snapshot" value="false">
+                        <input type="checkbox" name="mcit_save_snapshot" id="mcit_cbsnapshot" value="true" checked="">
+                        <label for="mcit_cbsnapshot"><?php echo __('Salva uno snapshot nel database di WordPress', 'mcit') ?></label>
                     </td>
                 </tr>
             </table>
             
-            <?php submit_button(); ?>
+            <p class="submit">
+                <input type="submit" name="mcit_submit" id="mcit_submit" class="button button-primary" value="<?php echo __('Salva le modifiche', 'mcit') ?>">
+                <input type="submit" name="mcit_preview" id="mcit_preview" class="button" value="<?php echo __('Mostra anteprima', 'mcit') ?>">
+            </p>
         </form>
     </div>
 <?php } ?>
