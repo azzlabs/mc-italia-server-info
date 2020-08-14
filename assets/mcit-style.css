@@ -1,3 +1,6 @@
+.tools_page_mcit-server-info-history .manage-column.column-ID {
+    width: 60px;
+}
 .editor-toolbar.fullscreen, .CodeMirror-fullscreen, .editor-preview-side {
     z-index: 99999;
 }

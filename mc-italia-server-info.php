@@ -20,12 +20,16 @@ function mcit_add_menu_entry() {
 	// Registra la voce menu
 	add_submenu_page('tools.php', 'MC-Italia server info', 'MC-Italia server info', 'administrator', 'mcit-server-info-generator', 'mcit_settings_page');
 	add_submenu_page(null, 'MC-Italia server info editor', 'MC-Italia server info editor', 'administrator', 'mcit-server-info-editor', 'mcit_editor_page');
+	add_submenu_page(null, 'MC-Italia server info editor', 'MC-Italia server info history', 'administrator', 'mcit-server-info-history', 'mcit_history_page');
 
 	// Registra i campi delle impostazioni di WP
     add_action('admin_init', 'mcit_register_settings');
 
     // Aggiunge i custom script e stili
     add_action('admin_enqueue_scripts', 'mcit_widget_enqueue_scripts');
+
+    // Aggiunge il cpt history
+    register_post_type('mcit_file_history', ['public' => false]);
 
     // Gestione errori
     set_error_handler(function ($severity, $message, $file, $line) {
@@ -34,7 +38,7 @@ function mcit_add_menu_entry() {
 }
 
 function mcit_widget_enqueue_scripts($hook) {
-    if ($hook != 'tools_page_mcit-server-info-editor') return;
+    if (!in_array($hook, ['tools_page_mcit-server-info-editor', 'tools_page_mcit-server-info-history'])) return;
 
     add_action('admin_head', 'mcit_custom_admin_js');
     wp_enqueue_style('simple_mde_css', plugin_dir_url(__FILE__) . 'assets/simple-mde/simplemde.min.css');
