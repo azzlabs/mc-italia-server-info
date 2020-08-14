@@ -53,6 +53,11 @@ function mcit_widget_enqueue_scripts($hook) {
 
     // Aggiunge il media dialog
     wp_enqueue_media();
+
+    // Registra la classe per la pagina history
+    global $mcit_history_list_table;
+    $mcit_history_list_table = new MCIT_History_List_Table();
+    $mcit_history_list_table->prepare_items();
 }
 
 function mcit_custom_admin_js() { ?>

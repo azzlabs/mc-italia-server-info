@@ -2,16 +2,18 @@ var count = 0;
 
 jQuery(document).ready(function($) {
 
-    new SimpleMDE({ 
-        element: $('.mdeditor')[0], 
-        spellChecker: false, 
-        status: false, 
-        toolbar: mcit_smde_toolbar,
-        autoDownloadFontAwesome: false,
-        previewRender: function(plainText) {
-            return mcit_post_render(this.parent.markdown(mcit_pre_render(plainText)));
-        }
-    });
+    if ($('.mdeditor').length > 0) {
+        new SimpleMDE({ 
+            element: $('.mdeditor')[0], 
+            spellChecker: false, 
+            status: false, 
+            toolbar: mcit_smde_toolbar,
+            autoDownloadFontAwesome: false,
+            previewRender: function(plainText) {
+                return mcit_post_render(this.parent.markdown(mcit_pre_render(plainText)));
+            }
+        });
+    }
 
     $('.addSection').click(function(e) {
         e.preventDefault();
@@ -96,7 +98,7 @@ jQuery(document).ready(function($) {
         return text;
     }
 
-    if (Array.isArray(staff_repeater_data)) {
+    if (typeof staff_repeater_data !== 'undefined') {
         staff_repeater_data.forEach(arr => {
             for (var key in arr) {
                 var child = addSection($('.addSection'), 'staff', key);
