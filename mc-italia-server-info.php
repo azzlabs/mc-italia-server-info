@@ -17,13 +17,13 @@ add_action('wp_ajax_mcit_get_uuid', 'mcit_get_uuid');
 add_action('admin_menu', 'mcit_add_menu_entry');
 
 function mcit_add_menu_entry() {
-	// Registra la voce menu
-	add_submenu_page('tools.php', 'MC-Italia server info', 'MC-Italia server info', 'administrator', 'mcit-server-info-generator', 'mcit_settings_page');
-	add_submenu_page(null, 'MC-Italia server info editor', 'MC-Italia server info editor', 'administrator', 'mcit-server-info-editor', 'mcit_editor_page');
-	add_submenu_page(null, 'MC-Italia server info editor', 'MC-Italia server info history', 'administrator', 'mcit-server-info-history', 'mcit_history_page');
-	add_submenu_page(null, 'MC-Italia server info editor', 'MC-Italia server info preview', 'administrator', 'mcit-server-info-preview', 'mcit_preview_page');
+    // Registra la voce menu
+    add_submenu_page('tools.php', 'MC-Italia server info', 'MC-Italia server info', 'administrator', 'mcit-server-info-generator', 'mcit_settings_page');
+    add_submenu_page(null, 'MC-Italia server info editor', 'MC-Italia server info editor', 'administrator', 'mcit-server-info-editor', 'mcit_editor_page');
+    add_submenu_page(null, 'MC-Italia server info editor', 'MC-Italia server info history', 'administrator', 'mcit-server-info-history', 'mcit_history_page');
+    add_submenu_page(null, 'MC-Italia server info editor', 'MC-Italia server info preview', 'administrator', 'mcit-server-info-preview', 'mcit_preview_page');
 
-	// Registra i campi delle impostazioni di WP
+    // Registra i campi delle impostazioni di WP
     add_action('admin_init', 'mcit_register_settings');
 
     // Aggiunge i custom script e stili
@@ -72,8 +72,12 @@ function mcit_widget_enqueue_scripts($hook) {
         wp_enqueue_code_editor(['type' => 'text/html']);
     }
 
+    // Stili e script custom
     wp_enqueue_script('mcit_edit_script', plugin_dir_url(__FILE__) . 'assets/editor-page-script.js');
     wp_enqueue_style('mcit_css', plugin_dir_url(__FILE__) . 'assets/mcit-style.css');
+
+    // Rimpiazzo le dashicons per retrocompatibilità a WordPress < 5.5
+	wp_enqueue_style('dashicons_css', plugin_dir_url(__FILE__) . 'assets/dashicons/css/dashicons.css');
 
     if ($hook == 'tools_page_mcit-server-info-history') {
         // Registra la classe per la pagina history
