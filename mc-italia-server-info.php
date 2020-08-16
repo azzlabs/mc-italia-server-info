@@ -68,6 +68,8 @@ function mcit_widget_enqueue_scripts($hook) {
     }
 
     if ($hook == 'tools_page_mcit-server-info-preview') {
+        MCIT_editor::mcit_preview_post_listener();
+
         // Aggiunge l'editor codice di WordPress
         wp_enqueue_code_editor(['type' => 'text/html']);
     }

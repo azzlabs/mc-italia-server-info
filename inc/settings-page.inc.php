@@ -62,7 +62,7 @@
 
                 <?php if (MCIT_editor::mcit_writable_test()) { ?>
                 <tr valign="top">
-                    <th scope="row"><?php echo __('Editor', 'mcit') ?></th>
+                    <th scope="row"><?php echo __('Modifica server-info.yml', 'mcit') ?></th>
                     <td>
                         <a href="?page=mcit-server-info-editor" class="button button-secondary"><?php echo __('Vai all\'editor', 'mcit'); ?></a>
                     </td>
@@ -77,7 +77,7 @@
                 </tr>
 
                 <tr valign="top">
-                    <th scope="row"><?php echo __('Editor veloce', 'mcit') ?></th>
+                    <th scope="row"><?php echo __('Editor del codice', 'mcit') ?></th>
                     <td>
                         <a href="?page=mcit-server-info-preview" class="button button-secondary"><?php echo __('Mostra anteprima file', 'mcit'); ?></a>
                         <a href="<?php echo site_url(get_option('mcit_server_info_path')); ?>"  class="button-link inline" target="_blank">
@@ -86,7 +86,7 @@
                 </tr>
             </table>
             
-            <?php submit_button(); ?>
+            <?php submit_button(__('Salva la configurazione', 'mcit')); ?>
         
         </form>
     </div>

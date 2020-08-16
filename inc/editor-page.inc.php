@@ -9,7 +9,6 @@
 
             if ($snapshot) {
                 $yaml_content = $snapshot->post_content;
-
                 MCIT_editor::mcit_print_error(sprintf('"%s" %s', $snapshot->post_title, __('caricato correttamente')), '', 'updated');
             }
         }
@@ -54,8 +53,9 @@
             </table>
             
             <p class="submit">
-                <input type="submit" name="mcit_submit" id="mcit_submit" class="button button-primary" value="<?php echo __('Salva le modifiche', 'mcit') ?>">
+                <input type="submit" name="mcit_submit" id="mcit_submit" class="button button-primary" value="<?php echo __('Salva modifiche nel file', 'mcit') ?>">
                 <input type="submit" name="mcit_preview" id="mcit_preview" class="button" value="<?php echo __('Mostra anteprima', 'mcit') ?>">
+                <a href="?page=mcit-server-info-history" class="button-link inline"><?php echo __('Vai agli snapshot salvati', 'mcit') ?></a>
             </p>
         </form>
     </div>

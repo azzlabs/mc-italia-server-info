@@ -9,6 +9,8 @@ function mcit_history_page() {
             $mcit_history_list_table->display();
         ?>
 
+        <a href="?page=mcit-server-info-editor" class="button-link inline"><?php echo __('Vai all\'editor', 'mcit') ?></a>
+
         <script>
             jQuery(document).ready(function($) {
                 $('.editinline').click(function() {

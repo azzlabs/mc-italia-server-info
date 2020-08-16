@@ -81,11 +81,50 @@ class MCIT_editor {
         return $content;
     }
 
+    static public function mcit_write_yaml_file($yaml_file) {
+        if (self::mcit_writable_test()) {
+            try {
+                if (file_put_contents(ABSPATH . get_option('mcit_server_info_path'), str_replace("\r\n", "\n", $yaml_file)))
+                    self::mcit_print_error(__('File server-info salvato con successo', 'mcit'), '', 'updated', true);
+            } catch (Exception $e) {
+                self::mcit_print_error(__('Errore nel salvataggio del file server-info', 'mcit'), $e->getMessage());
+            }
+        }
+    }
+
+    static public function mcit_preview_post_listener() {
+        // Modifica snapshot
+        if (isset($_POST['mcit_submit_snapshot'])) {
+            try {
+                wp_update_post(['ID' => $_POST['snapshot_id'], 'post_content' => $_POST['snapshot_content']]);
+                self::mcit_print_error(__('Snapshot aggiornato con successo', 'mcit'), '', 'updated', true);
+            } catch (Exception $e) {
+                self::mcit_print_error(__('Errore nell\'aggiornamento dello snapshot', 'mcit'), $e->getMessage());
+            }
+        } 
+
+        // Modifica snapshot e carica in loader
+        elseif (isset($_POST['mcit_submit_load'])) {
+            try {
+                wp_update_post(['ID' => $_POST['snapshot_id'], 'post_content' => $_POST['snapshot_content']]);
+                wp_redirect(esc_url_raw(add_query_arg(['page' => 'mcit-server-info-editor', 'snapshot_id' => $_POST['snapshot_id']])));
+                die();
+            } catch (Exception $e) {
+                self::mcit_print_error(__('Errore nell\'aggiornamento dello snapshot', 'mcit'), $e->getMessage());
+            }
+        } 
+        // Salva nel file yml
+
+        elseif (isset($_POST['mcit_submit_file']) && !empty($_POST['snapshot_content'])) {
+            self::mcit_write_yaml_file(stripcslashes($_POST['snapshot_content']));
+        }
+    }
+
     public function mcit_load_yaml($content = false) {
         try {
             if (empty($content)) $content = $this->mcit_read_yaml_file();
-                
-            $content = explode("\n---\n", $content);
+            
+            $content = explode("\n---\n", $content, 3);
 
             $this->current_dump = Symfony\Component\Yaml\Yaml::parse($content[0]);
             $this->page_content = $content[1];
@@ -121,13 +160,8 @@ class MCIT_editor {
                 }
             }
 
-            if (isset($_POST['mcit_submit']) && $this->mcit_writable_test()) {
-                try {
-                    if (file_put_contents(ABSPATH . get_option('mcit_server_info_path'), $yaml_file))
-                        $this->mcit_print_error(__('File server-info salvato con successo', 'mcit'), '', 'updated', true);
-                } catch (Exception $e) {
-                    $this->mcit_print_error(__('Errore nel salvataggio del file server-info', 'mcit'), $e->getMessage());
-                }
+            if (isset($_POST['mcit_submit'])) {
+                $this->mcit_write_yaml_file($yaml_file);
             }
         }
     }
