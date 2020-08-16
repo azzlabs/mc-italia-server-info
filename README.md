@@ -13,7 +13,7 @@ Questo plugin permette di modificare il file `server-info.yml` per gestire le in
 - Gestione dello storico del contenuto del file server-info in modo semplice, con salvataggio e ripristino
 
 ## Utilizzo:
-1. Scaricare il plugin dal repo ufficiale (https://github.com/azzlabs/mc-italia-server-info) in formato `.zip`
+1. Scaricare il plugin dalla sezione "Relases" del repo ufficiale (https://github.com/azzlabs/mc-italia-server-info/releases/) in formato `.zip`
 2. Dal pannello di wordpress, usare la voce di menu Plugin -> Aggiungi nuovo. In alto apparirà il tasto "Carica plugin" e da lì sarà possibile selezionare il file `.zip` scaricato dal repo. Attivare il plugin tramite la pagina di gestione dei plugin di WordPress.
 3. Una volta attivato, si potrà accedere tramite il menù "Strumenti" (o "Tools") in una voce chiamata "MC_Italia server info"
 4. Da questa interfaccia è possibile cambiare la posizione del file `server-info.yml` se necessario (sconsigliato). Se la cartella di destinazione è scrivibile, apparirà un pulsante "Vai all'editor", tramite il quale si arriverà alla schermata di modifica del file.
