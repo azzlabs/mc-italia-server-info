@@ -2,6 +2,21 @@
     <div class="wrap">
         <h1>Generatore <em>server-info.yml</em> per Minecraft-Italia.it</h1>
         
+        <?php 
+            try {
+                $new_ver = file_get_contents('https://raw.githubusercontent.com/azzlabs/mc-italia-server-info/master/update_ver.txt');
+                $cur_ver = file_get_contents(MCIT_ABSPATH . '/update_ver.txt');
+            } catch (Exception $e) {
+                MCIT_editor::mcit_print_error(__('Non sono riuscito a controllare gli aggiornamenti', 'mcit'), $e->getMessage());
+            }
+
+            if (!empty($new_ver) && !empty($cur_ver) && (floatval($new_ver) > floatval($cur_ver))) {
+                MCIT_editor::mcit_print_error(__('Trovato nuovo aggiornamento!', 'mcit'), 
+                    sprintf(__('Puoi ottenerlo dal repository ufficiale. %sClicca qui%s per leggere le istruzioni e scaricarlo!'),
+                    '<a href="https://github.com/azzlabs/mc-italia-server-info" target="_blank">', '</a>'), 'updated');
+            }
+        ?>
+
         <form method="post" action="options.php">
             <?php settings_fields('mcit_settings_group'); ?>
             <?php do_settings_sections('mcit_settings_group'); ?>
@@ -58,6 +73,15 @@
                     <th scope="row"><?php echo __('Snapshot', 'mcit') ?></th>
                     <td>
                         <a href="?page=mcit-server-info-history" class="button button-secondary"><?php echo __('Vai agli snapshot', 'mcit'); ?></a>
+                    </td>
+                </tr>
+
+                <tr valign="top">
+                    <th scope="row"><?php echo __('Editor veloce', 'mcit') ?></th>
+                    <td>
+                        <a href="?page=mcit-server-info-preview" class="button button-secondary"><?php echo __('Mostra anteprima file', 'mcit'); ?></a>
+                        <a href="<?php echo site_url(get_option('mcit_server_info_path')); ?>"  class="button-link inline" target="_blank">
+                            <?php echo __('Mostra il file "live"', 'mcit') ?><i class="dashicons dashicons-external"></i></a>
                     </td>
                 </tr>
             </table>

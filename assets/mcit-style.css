@@ -19,6 +19,16 @@
 .closeinlineedit {
     margin-left: 10px !important;
 }
+.button-link.inline {
+    line-height: 2em;
+    margin-left: 10px;
+}
+.button-link .dashicons {
+    text-decoration: none;
+    position: relative;
+    top: 5px;
+    left: 5px;
+}
 .mcit-status {
     font-weight: bold;
 }

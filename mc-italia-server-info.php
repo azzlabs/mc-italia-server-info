@@ -3,7 +3,7 @@
  * Plugin Name: Generatore server-info.yml
  * Plugin URI: https://github.com/azzlabs/mc-italia-server-info
  * Description: Genera il file server-info.yml per la bacheca server di Minecraft-Italia.it tramite wordpress
- * Version: 1.0
+ * Version: 1.1
  * Author: azzlabs
  * Author URI: https://azzari.dev/
  */
@@ -49,16 +49,16 @@ function mcit_widget_enqueue_scripts($hook) {
     add_action('admin_head', 'mcit_custom_admin_js');
 
     if ($hook == 'tools_page_mcit-server-info-editor') {
-        // Markdown editor
+        // Editor markdown
         wp_enqueue_style('simple_mde_css', plugin_dir_url(__FILE__) . 'assets/simple-mde/simplemde.min.css');
         wp_enqueue_script('simple_mde_script', plugin_dir_url(__FILE__) . 'assets/simple-mde/simplemde.min.js');
         wp_enqueue_script('mcit_smde_toolbar', plugin_dir_url(__FILE__) . 'assets/smde-toolbar.js');
 
-        // Aggiunge il color picker come dipendenza
+        // Aggiunge il color picker di WordPress
         wp_enqueue_style('wp-color-picker');
         wp_enqueue_script('wp-color-picker');
     
-        // Aggiunge il media dialog
+        // Aggiunge il media dialog di WordPress
         wp_enqueue_media();
 
         // Registra la classe per la pagina editor
@@ -68,7 +68,7 @@ function mcit_widget_enqueue_scripts($hook) {
     }
 
     if ($hook == 'tools_page_mcit-server-info-preview') {
-        // Code editor
+        // Aggiunge l'editor codice di WordPress
         wp_enqueue_code_editor(['type' => 'text/html']);
     }
 
@@ -77,7 +77,7 @@ function mcit_widget_enqueue_scripts($hook) {
     wp_enqueue_style('mcit_css', plugin_dir_url(__FILE__) . 'assets/mcit-style.css');
 
     // Rimpiazzo le dashicons per retrocompatibilità a WordPress < 5.5
-	wp_enqueue_style('dashicons_css', plugin_dir_url(__FILE__) . 'assets/dashicons/css/dashicons.css');
+    wp_enqueue_style('dashicons_css', plugin_dir_url(__FILE__) . 'assets/dashicons/css/dashicons.css');
 
     if ($hook == 'tools_page_mcit-server-info-history') {
         // Registra la classe per la pagina history
@@ -116,7 +116,7 @@ function mcit_sanitize_cb($string) {
     return $string == 'true';
 }
 
-// Includo le dipendenze
+// Include tutte le altre funzioni e librerie
 foreach (glob(MCIT_ABSPATH . '/inc/*.inc.php') as $filename) {
     include_once $filename;
 }
