@@ -698,7 +698,7 @@ class Inline
         return (string) $scalar;
     }
 
-    private static function parseTag(string $value, int &$i, int $flags): string
+    private static function parseTag(string $value, int &$i, int $flags)
     {
         if ('!' !== $value[$i]) {
             return null;
