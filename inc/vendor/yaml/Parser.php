@@ -1116,7 +1116,7 @@ class Parser
         return $value;
     }
 
-    private function getLineTag(string $value, int $flags, bool $nextLineCheck = true): ?string
+    private function getLineTag(string $value, int $flags, bool $nextLineCheck = true)
     {
         if ('' === $value || '!' !== $value[0] || 1 !== self::preg_match('/^'.self::TAG_PATTERN.' *( +#.*)?$/', $value, $matches)) {
             return null;
@@ -1186,7 +1186,7 @@ class Parser
 
         return $value;
 
-        for ($i = 1; isset($yaml[$i]) && $quotation !== $yaml[$i]; ++$i) {
+        /* for ($i = 1; isset($yaml[$i]) && $quotation !== $yaml[$i]; ++$i) {
         }
 
         // quoted single line string
@@ -1205,7 +1205,7 @@ class Parser
             if (isset($this->currentLine[$i]) && $quotation === $this->currentLine[$i]) {
                 break;
             }
-        }
+        } */
     }
 
     private function lexInlineMapping(string $yaml): string
