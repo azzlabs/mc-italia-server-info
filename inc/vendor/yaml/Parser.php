@@ -1116,7 +1116,7 @@ class Parser
         return $value;
     }
 
-    private function getLineTag(string $value, int $flags, bool $nextLineCheck = true)
+    private function getLineTag(string $value, int $flags, bool $nextLineCheck = true): string
     {
         if ('' === $value || '!' !== $value[0] || 1 !== self::preg_match('/^'.self::TAG_PATTERN.' *( +#.*)?$/', $value, $matches)) {
             return null;
@@ -1140,7 +1140,7 @@ class Parser
         throw new ParseException(sprintf('Tags support is not enabled. You must use the flag "Yaml::PARSE_CUSTOM_TAGS" to use "%s".', $matches['tag']), $this->getRealCurrentLineNb() + 1, $value, $this->filename);
     }
 
-    private function parseQuotedString(string $yaml): ?string
+    private function parseQuotedString(string $yaml): string
     {
         if ('' === $yaml || ('"' !== $yaml[0] && "'" !== $yaml[0])) {
             throw new \InvalidArgumentException(sprintf('"%s" is not a quoted string.', $yaml));
