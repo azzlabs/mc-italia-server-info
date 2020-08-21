@@ -21,5 +21,4 @@ Questo plugin permette di modificare il file `server-info.yml` per gestire le in
 6. Se dovesse fallire la creazione o lettura del file, significa che la cartella selezionata non esiste, oppure non si hanno i permessi di scrittura (ottenibili tramite i comandi `chown` o `chmod` sulla cartella o file di destinazione).
 
 ## Librerie di terze parti usate:
-- [Simple MDE](https://simplemde.com/)
-- [Symfony YAML parser](https://github.com/symfony/yaml)
+[Simple MDE](https://simplemde.com/), [Symfony YAML parser](https://github.com/symfony/yaml)
