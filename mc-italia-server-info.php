@@ -33,9 +33,9 @@ function mcit_add_menu_entry() {
     register_post_type('mcit_file_history', ['public' => false]);
 
     // Gestione errori
-    set_error_handler(function ($severity, $message, $file, $line) {
+    /* set_error_handler(function ($severity, $message, $file, $line) {
         throw new ErrorException($message, $severity, $severity, $file, $line);
-    });
+    }); */
 }
 
 function mcit_widget_enqueue_scripts($hook) {
