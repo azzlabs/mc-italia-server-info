@@ -138,7 +138,7 @@ const mcit_smde_toolbar = [
     {
         name: "mc-italia", 
         action: function() {
-            window.open("https://www.minecraft-italia.it/stuff/markdown-editor");
+            window.open("https://www.minecraft-italia.it/lista-server/markdown-editor");
         }, 
         title: "Sandbox markdown di Minecraft-Italia", 
         className: "dashicons dashicons-external"
