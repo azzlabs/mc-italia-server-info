@@ -3,7 +3,7 @@
  * Plugin Name: Generatore server-info.yml
  * Plugin URI: https://github.com/azzlabs/mc-italia-server-info
  * Description: Genera il file server-info.yml per la bacheca server di Minecraft-Italia.it tramite wordpress
- * Version: 1.1
+ * Version: 1.2
  * Author: azzlabs
  * Author URI: https://azzari.dev/
  */
